@@ -1,0 +1,120 @@
+<ruleset>
+
+    <server-settings>
+        <server>0.0.0.0:8000</server>
+        <execute-pyref>true</execute-pyref>
+        <dev-allow>baach.dyndns.org</dev-allow>
+        <dev-htpasswd>deliv-users.htpasswd</dev-htpasswd>
+    </server-settings>
+
+    <proxy path="/_theme">
+        <dest href="{here}/../theme" />
+    </proxy>
+
+    <proxy path="/rightcolumn" class="rightcolumn">
+        <!--<dest href="http://bayarea.wordpressdev.the-hub.net" />-->
+        <response rewrite-links="1" />
+        <dest pyref="myrefs:get_blogs_destination" />
+        <response pyref="myrefs:modify_blog_response" />
+    </proxy>
+
+    <proxy path="/blogs" class="blogs">
+        <dest pyref="myrefs:get_blogs_destination" />
+        <response rewrite-links="1" />
+    </proxy>
+
+    <match path="wildcard:/blogs/wp-admin*" class="blogadmin" />
+    <match path="wildcard:/blogs/wp-login*" class="blogadmin" />
+
+
+    <proxy path="/blogadmin" class="blogadmin">
+         <dest href="http://bayarea.wordpressdev.the-hub.net" /> 
+        <response rewrite-links="1" />
+        <request pyref="myrefs:modify_proxy_request" />
+        <response pyref="myrefs:modify_main_response" />
+    </proxy>
+
+
+    <proxy path="/admin/lists" class="lists">
+        <dest href="http://hubspacedev.the-hub.net/admin/lists" />
+        <response rewrite-links="1" />
+    </proxy>
+    
+ 
+    <proxy path="/" class="main">
+        <dest href="http://hubspacedev.the-hub.net" />
+        <response rewrite-links="1" />
+        <response pyref="myrefs:modify_main_response" />
+    </proxy>
+
+
+    <match path="/admin/lists" abort="1" />
+    <match path="/admin/edit" abort="1" />
+
+    <theme href="/_theme/theme.html" />
+
+
+    <rule class="main" suppress-standard="1">
+        
+        This includes the headers for wp and formspring on all pages
+        <!--<prepend content="elements:/html/head/script" href='/rightcolumn'
+                 theme="children:/html/head" nocontent="ignore" />
+        <prepend content="elements:/html/head/link"  href='/rightcolumn'
+                 theme="children:/html/head" nocontent="ignore" foo='bar'/>
+        <prepend content="elements:/html/head/style"  href='/rightcolumn' 
+                 theme="children:/html/head" nocontent="ignore" />-->
+
+        <!--This includes the headers for wp and formspring on all pages
+        <prepend content="elements:/html/head/script" href='/rightcolumn'
+                 theme="children:/html/head" nocontent="ignore" />
+        <prepend content="elements:/html/head/link"  href='/rightcolumn'
+                 theme="children:/html/head" nocontent="ignore" foo='bar'/>
+        <prepend content="elements:/html/head/style"  href='/rightcolumn' 
+                 theme="children:/html/head" nocontent="ignore" />-->
+
+              
+        <!-- Toms special c tag header content -->
+        <prepend content="elements:/html/head/c/script" 
+                 theme="children:/html/head" nocontent="ignore" />
+        <prepend content="elements:/html/head/c/link" 
+                 theme="children:/html/head" nocontent="ignore" />
+        <prepend content="elements:/html/head/c/style" 
+                 theme="children:/html/head" nocontent="ignore" />
+
+        <!--<replace content='children:body' theme='children:body' move="0" />-->     
+        <!--<prepend content="children:#sidebar div.social" theme="children:#sidebar" href="/rightcolumn" move="0"/>-->
+        <replace content="#sidebar" theme="#sidebar" href="/rightcolumn" />
+        <!--<append content="ul.xoxo li#twitter-3" theme="children:#xoxo" href="/rightcolumn" move="0"/>-->
+        <drop content="#add-this-widget" />
+        <replace content="children:#hsheader" theme="children:#hsheader" />
+        <replace content="children:#hscontent" theme="children:#hscontent" />
+        <replace content="children:#hsfooter" theme="children:#hsfooter" />
+        <replace content="attributes:body" theme="attributes:body" />
+
+
+    </rule>
+    <rule class="blogadmin" suppress-standard="0">
+        
+     <!--<append content="ul.xoxo li#twitter-3" theme="children:#xoxo" href="/rightcolumn" move="0"/>-->
+        <replace content="children:body" theme="children:body" />
+    </rule>
+    <rule class="lists">
+        <theme href="/_theme/lists.html" />
+        <replace content='//div[1]' theme='//div[1]' move="0" />
+    </rule>
+
+    <rule class="blogs">
+        <theme href="/_theme/lists.html" />
+        <replace content='#content' theme='//div[1]' move="0" />
+    </rule>
+
+
+    
+    <rule class="rightcolumn" suppress-standard="1">
+        <theme href="/_theme/lists.html" />
+        <drop content="#fsForm856330" />
+        <drop content="script" />
+        <replace content='#sidebar' theme='//div[1]' move="0" />
+    </rule>
+
+</ruleset>

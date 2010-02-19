@@ -1,0 +1,36 @@
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+ href="{{ pathto('_static/deliverance.css') }}">
+{% endblock %}
+
+{% block sidebarsearch %}
+
+<hr>
+
+<ul>
+<li><a href="http://trac.openplans.org/deliverance">Issue tracker</a></li>
+<li><a href="http://www.openplans.org/projects/deliverance/lists/deliverance-discussion">discussion mailing list</a></li>
+<li style="padding-top: 1em; font-size: 85%">Sponsored by
+  <a href="http://topp.openplans.org">The Open Planning Project</a></li>
+</ul>
+
+{{ super() }}
+
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-2442258-3");
+pageTracker._trackPageview();
+</script>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+News
+====
+
+svn trunk
+---------
+
+* Add a monkeypatch for Paste to work around a long unsolved robustness bug.
+
+* Correctly handle in-document links in the theme. Patch from Michael Dunstan.
+  This fixes #19 and #31.
+
+* Added :class:`deliverance.middleware:FileRuleGetter`
+
+* Added `Paste Deploy <http://pythonpaste.org/deploy/>`_ entry point
+  (``egg:Deliverance``).
+
+0.3 prerelease
+--------------
+
+Everything is new: no news yet!

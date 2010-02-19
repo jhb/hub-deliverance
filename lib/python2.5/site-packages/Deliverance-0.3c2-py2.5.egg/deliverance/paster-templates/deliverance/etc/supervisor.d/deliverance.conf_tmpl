@@ -1,0 +1,2 @@
+[program:deliverance]
+command = deliverance-proxy ./deliverance.xml
