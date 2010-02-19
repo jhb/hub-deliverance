@@ -2,7 +2,8 @@ import re,lxml
 from lxml import etree,objectify
 
 import hubconfig
-
+from deliverance.util.proxyrequest import Request, Response
+from deliverance.exceptions import AbortProxy
 
 def modify_blog_response(request, response, orig_base, proxied_base, proxied_url, log):
     # orig_base: the original URL base: http://localhost:8080/trac
@@ -95,16 +96,73 @@ def modify_main_response(request, response, orig_base, proxied_base, proxied_url
 
 
 def get_blogs_destination(request, log):
-    import pdb; pdb.set_trace()
-    if request.headers.has_key('hs-dest'):
-        dest = request.headers['hs-dest']
-        if dest.endswith('/'):
-            dest = dest[:-1]
-        return dest
-    else:        
-        return hubconfig.blogdefault['rightcolumn']
+    #import pdb; pdb.set_trace()
+    if hasattr(request,'orig_response'):
+        orig_response = request.orig_response
+        body = orig_response.body
+        parsed = parseBlogSource(body)
+        #import pdb; pdb.set_trace()
+        if parsed:
+            src,path_name = parsed
+            return src
+        else:
+            raise AbortProxy
+    return hubconfig.blogdefault['rightcolumn']
+
+
+def get_main_destination(request,log):
+    #import pdb; pdb.set_trace()
+    if request.script_name:
+        raise AbortProxy
+    return 'http://hubspacedev.the-hub.net'
+
 
 def modify_proxy_request(request, log):
     #import pdb; pdb.set_trace()
     return request
 
+
+def parseBlogSource(body):
+    import re 
+    pattern = '<blog src="([^"].*)" blog2path="([^"].*)".*>.*</blog>'
+    result = re.findall(pattern,body)
+    if result:
+        src = result[0][0]
+        path_name = result[0][1]
+        return (src,path_name)
+    else:
+        return None
+
+def modify_blog_request(request, log):
+    #import pdb; pdb.set_trace()
+    import re
+    if request.environ.has_key('deliverance.subrequest_original_request'):
+        if 1:
+            orig_request = request.environ['deliverance.subrequest_original_request']
+            orig_response = orig_request.orig_response
+            parsed = parseBlogSource(orig_response.body)
+            if parsed:
+                #import pdb; pdb.set_trace()
+                
+                src,path_name = parsed
+                full_path = orig_request.path_info #which one to use, path_info, path_qs,...?
+                parts = full_path.split('/')
+                subpath = '/'.join(parts[parts.index(path_name)+1:])
+                #proxypath = request.
+                #if proxypath.endswith('/'):
+                #    proxypath = proxybase[:-1]
+                #newpath = proxypath+'/'+subpath
+                if subpath and not subpath.startswith('/'):
+                    subpath = '/'+subpath
+                env = orig_request.environ.copy()
+                #env['SCRIPT_NAME']=request.environ['SCRIPT_NAME']
+                env['PATH_INFO']=subpath
+                request = Request(env)
+                
+    return request
+
+def match_notheme(req, resp, headers, *args):
+    if resp.headers['Content-Type'] in ['text/html']:
+        return False
+    else:
+        return True

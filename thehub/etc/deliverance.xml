@@ -12,26 +12,27 @@
     </proxy>
 
     <proxy path="/rightcolumn" class="rightcolumn">
-        <!--<dest href="http://bayarea.wordpressdev.the-hub.net" />-->
+        <dest href="http://bayarea.wordpressdev.the-hub.net" />
         <response rewrite-links="1" />
-        <dest pyref="myrefs:get_blogs_destination" />
         <response pyref="myrefs:modify_blog_response" />
     </proxy>
 
-    <proxy path="/blogs" class="blogs">
+    <proxy path="/blogs">
+        <request pyref="myrefs:modify_blog_request" />
         <dest pyref="myrefs:get_blogs_destination" />
         <response rewrite-links="1" />
+        <response pyref="myrefs:modify_blog_response" />
     </proxy>
 
     <match path="wildcard:/blogs/wp-admin*" class="blogadmin" />
     <match path="wildcard:/blogs/wp-login*" class="blogadmin" />
 
-
+    <match path="wildcard:/blogs*" response-header="Content-Type: image/jpeg" abort='1' />
+    
     <proxy path="/blogadmin" class="blogadmin">
          <dest href="http://bayarea.wordpressdev.the-hub.net" /> 
         <response rewrite-links="1" />
         <request pyref="myrefs:modify_proxy_request" />
-        <response pyref="myrefs:modify_main_response" />
     </proxy>
 
 
@@ -41,18 +42,20 @@
     </proxy>
     
  
-    <proxy path="/" class="main">
-        <dest href="http://hubspacedev.the-hub.net" />
+    <proxy path="/" class='main'>
+        <dest pyref="myrefs:get_main_destination" />
         <response rewrite-links="1" />
-        <response pyref="myrefs:modify_main_response" />
+        <!--<response pyref="myrefs:modify_main_response" />-->
     </proxy>
 
+    <match path="wildcard:/*" response-header="Content-Type: image/jpeg" abort='1' />
 
     <match path="/admin/lists" abort="1" />
     <match path="/admin/edit" abort="1" />
 
     <theme href="/_theme/theme.html" />
-
+    
+    <match pyref="myrefs:match_notheme" abort="1" />
 
     <rule class="main" suppress-standard="1">
         
@@ -87,7 +90,8 @@
         <!--<append content="ul.xoxo li#twitter-3" theme="children:#xoxo" href="/rightcolumn" move="0"/>-->
         <drop content="#add-this-widget" />
         <replace content="children:#hsheader" theme="children:#hsheader" />
-        <replace content="children:#hscontent" theme="children:#hscontent" />
+        <append content="children:#hscontent" theme="children:#hscontent" />
+        <append content="#content" theme="children:#hscontent" href="/blogs" />
         <replace content="children:#hsfooter" theme="children:#hsfooter" />
         <replace content="attributes:body" theme="attributes:body" />
 
@@ -103,7 +107,7 @@
         <replace content='//div[1]' theme='//div[1]' move="0" />
     </rule>
 
-    <rule class="blogs">
+    <rule class="blogs" suppress-standard="1">
         <theme href="/_theme/lists.html" />
         <replace content='#content' theme='//div[1]' move="0" />
     </rule>
